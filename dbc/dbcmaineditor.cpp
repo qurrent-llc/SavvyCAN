@@ -267,7 +267,7 @@ void DBCMainEditor::onTreeDoubleClicked(const QModelIndex &index)
     uint32_t msgID;
     QString idString;
 
-    qDebug() << firstCol->data(0, Qt::UserRole) << " - " << firstCol->text(0);
+    qDebug() << firstCol->data(0, Qt::UserRole) << nameCommentSeperator << firstCol->text(0);
 
     switch (firstCol->data(0, Qt::UserRole).toInt())
     {
@@ -292,7 +292,7 @@ void DBCMainEditor::onTreeDoubleClicked(const QModelIndex &index)
     case DBCItemTypes::SIG: //a signal
         msgID = getParentMessageID(firstCol);
         msg = dbcFile->messageHandler->findMsgByID(msgID);
-        QString nameString = firstCol->text(0);
+        QString nameString = firstCol->text(0).split(nameCommentSeperator)[0];
         if (nameString.contains("(")) nameString = nameString.split(" ")[1];
         else nameString = nameString.split(" ")[0];
         sig = msg->sigHandler->findSignalByName(nameString);
@@ -314,7 +314,7 @@ void DBCMainEditor::onTreeContextMenu(const QPoint & pos)
     QTreeWidgetItem* firstCol = ui->treeDBC->currentItem();
     QString idString;
 
-    qDebug() << firstCol->data(0, Qt::UserRole) << " - " << firstCol->text(0);
+    qDebug() << firstCol->data(0, Qt::UserRole) << nameCommentSeperator << firstCol->text(0);
 
     switch (firstCol->data(0, Qt::UserRole).toInt())
     {
@@ -405,7 +405,7 @@ void DBCMainEditor::refreshTree()
         DBC_NODE *node = &dbcFile->dbc_nodes[n];
         QTreeWidgetItem *nodeItem = new QTreeWidgetItem();
         QString nodeInfo = node->name;
-        if (node->comment.count() > 0) nodeInfo.append(" - ").append(node->comment);
+        if (node->comment.count() > 0) nodeInfo.append(nameCommentSeperator).append(node->comment);
         nodeItem->setText(0, nodeInfo);
         nodeItem->setIcon(0, nodeIcon);
         nodeItem->setData(0, Qt::UserRole, DBCItemTypes::NODE);
@@ -418,7 +418,7 @@ void DBCMainEditor::refreshTree()
             {
                 QTreeWidgetItem *msgItem = new QTreeWidgetItem(nodeItem);
                 QString msgInfo = Utility::formatCANID(msg->ID) + " " + msg->name;
-                if (msg->comment.count() > 0) msgInfo.append(" - ").append(msg->comment);
+                if (msg->comment.count() > 0) msgInfo.append(nameCommentSeperator).append(msg->comment);
                 msgItem->setText(0, msgInfo);
                 msgItem->setIcon(0, messageIcon);
                 msgItem->setData(0, Qt::UserRole, DBCItemTypes::MESG);
@@ -453,7 +453,7 @@ QString DBCMainEditor::createSignalText(DBC_SIGNAL *sig)
     else
         sigInfo.append(" [" + QString::number(sig->startBit) + "m " + QString::number(sig->signalSize) + "]");
 
-    if (sig->comment.count() > 0) sigInfo.append(" - ").append(sig->comment);
+    if (sig->comment.count() > 0) sigInfo.append(nameCommentSeperator).append(sig->comment);
     return sigInfo;
 }
 
@@ -484,7 +484,7 @@ void DBCMainEditor::updatedNode(DBC_NODE *node)
     {
         QTreeWidgetItem *item = nodeToItem[node];
         QString nodeInfo = node->name;
-        if (node->comment.count() > 0) nodeInfo.append(" - ").append(node->comment);
+        if (node->comment.count() > 0) nodeInfo.append(nameCommentSeperator).append(node->comment);
         item->setText(0, nodeInfo);
     }
     else qDebug() << "That node doesn't exist. That's a bug dude.";
@@ -496,11 +496,11 @@ void DBCMainEditor::updatedMessage(DBC_MESSAGE *msg)
     {
         QTreeWidgetItem *item = messageToItem.value(msg);
         QString msgInfo = Utility::formatCANID(msg->ID) + " " + msg->name;
-        if (msg->comment.count() > 0) msgInfo.append(" - ").append(msg->comment);
+        if (msg->comment.count() > 0) msgInfo.append(nameCommentSeperator).append(msg->comment);
         item->setText(0, msgInfo);
         //editor could have changed the parent Node too. Have to figure out which node
         //is parent in the GUI and compare that to parent in the data.
-        DBC_NODE *oldParent = dbcFile->findNodeByName(item->parent()->text(0).split(" - ")[0]);
+        DBC_NODE *oldParent = dbcFile->findNodeByName(item->parent()->text(0).split(nameCommentSeperator)[0]);
         if (oldParent != msg->sender && oldParent)
         {
             qDebug() << "Changed parent of message. Trying to rehome it.";
@@ -646,7 +646,7 @@ void DBCMainEditor::copyMessageToNode(DBC_NODE *parentNode, DBC_MESSAGE *source,
     msgPtr = dbcFile->messageHandler->findMsgByIdx(dbcFile->messageHandler->getCount() - 1);
     QTreeWidgetItem *newMsgItem = new QTreeWidgetItem();
     QString msgInfo = Utility::formatCANID(msg.ID) + " " + msg.name;
-    if (msg.comment.count() > 0) msgInfo.append(" - ").append(msg.comment);
+    if (msg.comment.count() > 0) msgInfo.append(nameCommentSeperator).append(msg.comment);
     newMsgItem->setText(0, msgInfo);
     newMsgItem->setIcon(0, messageIcon);
     newMsgItem->setData(0, Qt::UserRole, DBCItemTypes::MESG);
@@ -680,7 +680,7 @@ void DBCMainEditor::newMessage()
     }
 
     //if there was a comment this will find the location of the comment and snip it out.
-    QString nodeName = nodeItem->data(0, Qt::DisplayRole).toString().split(" - ")[0];
+    QString nodeName = nodeItem->data(0, Qt::DisplayRole).toString().split(nameCommentSeperator)[0];
 
     DBC_NODE *node = dbcFile->findNodeByName(nodeName);
     if (!node) node = dbcFile->findNodeByIdx(0);
@@ -726,7 +726,7 @@ void DBCMainEditor::newMessage()
     msgPtr = dbcFile->messageHandler->findMsgByIdx(dbcFile->messageHandler->getCount() - 1);
     QTreeWidgetItem *newMsgItem = new QTreeWidgetItem();
     QString msgInfo = Utility::formatCANID(msg.ID) + " " + msg.name;
-    if (msg.comment.count() > 0) msgInfo.append(" - ").append(msg.comment);
+    if (msg.comment.count() > 0) msgInfo.append(nameCommentSeperator).append(msg.comment);
     newMsgItem->setText(0, msgInfo);
     newMsgItem->setIcon(0, messageIcon);
     newMsgItem->setData(0, Qt::UserRole, DBCItemTypes::MESG);

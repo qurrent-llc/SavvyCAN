@@ -95,6 +95,8 @@ private:
     void processSignalToTree(QTreeWidgetItem *parent, DBC_SIGNAL *sig);
     uint32_t getParentMessageID(QTreeWidgetItem *cell);
     QString createSignalText(DBC_SIGNAL *sig);
+
+    const QString nameCommentSeperator = " - ";
 };
 
 #endif // DBCMAINEDITOR_H

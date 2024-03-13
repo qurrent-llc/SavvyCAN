@@ -104,9 +104,19 @@ DBC_MESSAGE* DBCMessageHandler::findMsgByID(uint32_t id)
 
     for (int i = 0; i < messages.count(); i++)
     {
-        if ( messages[i].ID == id )
+        if (messages[i].extendedID)
         {
-            return &messages[i];
+            if((messages[i].ID & 0x1FFFFFFFUL) == (id & 0x1FFFFFFFUL))
+            {
+                return &messages[i];
+            }
+        }
+        else
+        {
+            if((messages[i].ID & 0x7FFUL) == (id & 0x7FFUL))
+            {
+                return &messages[i];
+            }
         }
 
         if (matchingCriteria == J1939)

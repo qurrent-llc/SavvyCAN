@@ -376,6 +376,7 @@ void ConnectionWindow::saveBusSettings()
         bus.setCanFD(ui->canFDEnable->isChecked());
         bus.setDataRate(ui->cbDataRate->currentText().toInt());
         conn_p->setBusSettings(offset, bus);
+        conn_p->setPort(ui->textEditConnString->text());
     }
 }
 
@@ -441,6 +442,8 @@ void ConnectionWindow::populateBusDetails(int offset)
             }
         }
         if (!found) ui->cbDataRate->addItem(QString::number(bus.getDataRate()));
+
+        conn_p->getPort();
     }
 }
 

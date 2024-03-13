@@ -59,6 +59,12 @@ public:
     QString getPort();
 
     /**
+     * @brief setPort
+     * @return updates the port name of the device
+     */
+    void setPort(QString port);
+
+    /**
      * @brief getDriver
      * @return returns the name of the driver used for this device
      */
@@ -316,7 +322,7 @@ protected:
 
 private:
     LFQueue<CANFrame>   mQueue;
-    const QString       mPort;
+    QString             mPort;
     const QString       mDriver;
     const CANCon::type  mType;
     bool                mIsCapSuspended;

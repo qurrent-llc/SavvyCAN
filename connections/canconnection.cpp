@@ -241,9 +241,12 @@ void CANConnection::setBusConfig(int pBusId, CANBus& pBus) {
     mBusData[pBusId].mBus = pBus;
 }
 
-
 QString CANConnection::getPort() {
     return mPort;
+}
+
+void CANConnection::setPort(QString port) {
+    mPort = port;
 }
 
 QString CANConnection::getDriver()
